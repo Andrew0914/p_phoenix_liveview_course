@@ -7,6 +7,13 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
+      <style>
+        form.phx-submit-loading  *:not(button) {
+          background-color: lightgray !important;
+          opacity: 0.75 !important;
+          border-radius: 4px;
+        }
+      </style>
       <.header>
         {@title}
         <:subtitle>Use this form to manage game records in your database.</:subtitle>
