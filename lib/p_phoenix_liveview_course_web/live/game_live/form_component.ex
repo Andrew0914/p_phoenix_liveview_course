@@ -36,6 +36,13 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.FormComponent do
           <.live_file_input upload={@uploads.image} />
         </div>
 
+        <%= for image <- @uploads.image.entries do %>
+          <progress value={image.progress} max="100">{image.progress}%</progress>
+          <div class="mt-4">
+            <.live_img_preview entry={image} width="250" />
+          </div>
+        <% end %>
+
         <:actions>
           <.button phx-disable-with="Saving...">Save Game</.button>
         </:actions>
