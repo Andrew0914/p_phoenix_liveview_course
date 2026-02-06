@@ -45,7 +45,14 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.FormComponent do
      |> assign(assigns)
      |> assign_new(:form, fn ->
        to_form(Catalog.change_game(game))
-     end)}
+     end)
+     |> allow_upload(:image,
+       accept: ~w(.jpg .jpeg .png),
+       max_entries: 1,
+       max_file_size: 9_000_000,
+       auto_upload: true
+     )
+     |> IO.inspect()}
   end
 
   @impl true
