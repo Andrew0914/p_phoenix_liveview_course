@@ -1,4 +1,5 @@
 defmodule PPhoenixLiveviewCourseWeb.PokemonLive.Pokemon do
+  @derive Jason.Encoder
   defstruct name: "", type: nil, image_url: "", id: nil
 end
 
@@ -21,7 +22,14 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
 
     winner = battle(p1_pokemon, p2_pokemon)
 
-    {:noreply, socket |> assign(p1_pokemon: p1_pokemon, p2_pokemon: p2_pokemon, winner: winner)}
+    {:noreply,
+     socket
+     |> assign(p1_pokemon: p1_pokemon, p2_pokemon: p2_pokemon, winner: winner)
+     |> push_event("battle:start", %{
+       p1_pokemon: p1_pokemon,
+       p2_pokemon: p2_pokemon,
+       winner: %{player: elem(winner, 0), pokemon: elem(winner, 1)}
+     })}
   end
 
   #  PRIVATES

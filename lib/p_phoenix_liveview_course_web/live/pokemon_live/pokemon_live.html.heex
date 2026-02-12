@@ -10,6 +10,8 @@
     :if={@p1_pokemon && @p2_pokemon}
     class="pokemon-battle"
     name={if @winner |> elem(0) == :draw, do: "draw_battle"}
+    id="battle-area"
+    phx-hook="PokemonBattle"
   >
     <PokemonComponent.pokemon_card pokemon={@p1_pokemon} player="Player 1" id="p1-pokemon" />
 
