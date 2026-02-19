@@ -5,8 +5,23 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(game_title: "Blackjack ♥️♣️♠️♦️") |> init_deck() |> first_deal(),
+    {:ok, socket |> assign(game_title: "Blackjack ♥️♣️♠️♦️") |> init_deck(),
      layout: {PPhoenixLiveviewCourseWeb.Layouts, :game}}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    win_limit =
+      case params["limit"] do
+        nil -> 21
+        limit_str ->
+          case Integer.parse(limit_str) do
+            {limit, ""} when limit > 0 -> limit
+            _ -> 21
+          end
+      end
+
+    {:noreply, socket |> assign(win_limit: win_limit) |> first_deal()}
   end
 
   @impl true
@@ -21,6 +36,11 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   @impl true
   def handle_event("stand", _params, socket) do
     {:noreply, socket |> cpu_draw_card(1) |> handle_winner_on_stand()}
+  end
+
+  @impl true
+  def handle_event("reset", _params, socket) do
+    {:noreply, socket |> init_deck() |> first_deal()}
   end
 
   # Privates
@@ -38,7 +58,7 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   end
 
   defp draw_card(socket, count) do
-    if points(socket.assigns.player) < 21 do
+    if points(socket.assigns.player) < socket.assigns.win_limit do
       [card1] = Enum.take_random(@cards, count)
       new_player_cards = [card1 | socket.assigns.player]
 
@@ -49,7 +69,9 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   end
 
   defp cpu_draw_card(socket, count) do
-    if points(socket.assigns.cpu) < 17 do
+    cpu_target = socket.assigns.win_limit - 4
+
+    if points(socket.assigns.cpu) < cpu_target do
       [card1] = Enum.take_random(@cards, count)
       new_cpu_cards = [card1 | socket.assigns.cpu]
 
@@ -62,11 +84,13 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   defp handle_winner_on_draw(socket) do
     player_points = points(socket.assigns.player)
     cpu_points = points(socket.assigns.cpu)
+    win_limit = socket.assigns.win_limit
 
     winner =
       cond do
-        player_points > 21 -> :cpu
-        cpu_points > 21 -> :player
+        player_points > win_limit and cpu_points > win_limit -> :tie
+        player_points > win_limit -> :cpu
+        cpu_points > win_limit -> :player
         true -> nil
       end
 
@@ -76,11 +100,13 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   defp handle_winner_on_stand(socket) do
     player_points = points(socket.assigns.player)
     cpu_points = points(socket.assigns.cpu)
+    win_limit = socket.assigns.win_limit
 
     winner =
       cond do
-        player_points > 21 -> :cpu
-        cpu_points > 21 -> :player
+        player_points > win_limit and cpu_points > win_limit -> :tie
+        player_points > win_limit -> :cpu
+        cpu_points > win_limit -> :player
         player_points > cpu_points -> :player
         player_points < cpu_points -> :cpu
         true -> :tie
