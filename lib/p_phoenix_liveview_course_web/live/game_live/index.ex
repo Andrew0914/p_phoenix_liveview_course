@@ -7,7 +7,9 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :games, Catalog.list_games())}
+    {:ok,
+     socket
+     |> assign(:results, Catalog.list_games())}
   end
 
   @impl true
@@ -48,5 +50,12 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
     game = Catalog.get_game!(id)
     {:ok, _} = Catalog.delete_game(game)
     {:noreply, stream_delete(socket, :games, game)}
+  end
+
+  # ---  Búsqueda en tiempo real ---
+  @impl true
+  def handle_event("search", %{"search_form" => %{"query" => query}}, socket) do
+    results = Catalog.search_games(query)
+    {:noreply, assign(socket, :results, results)}
   end
 end
