@@ -1,32 +1,14 @@
 <section class="gym">
   <h1>Pokemon battle!💥</h1>
+
   <h2>Choose your Pokemon</h2>
   <div class="pokemon-list">
-    <PokemonComponent.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
+    <PokemonComponents.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
   </div>
 
-  <h2 :if={@p1_pokemon && @p2_pokemon}>Battle battling</h2>
-  <div
-    :if={@p1_pokemon && @p2_pokemon}
-    class="pokemon-battle"
-    name={if @result == :draw, do: "draw_battle"}
-    id="battle-area"
-    phx-hook="PokemonBattle"
-  >
-    <PokemonComponent.pokemon_card
-      pokemon={@p1_pokemon}
-      player={if @player == :p1, do: "You", else: "Player 1"}
-      id="p1-pokemon"
-    />
+  <h2>Battle area</h2>
+  <div class="pokemon-battle" id="battle-area"></div>
 
-    <PokemonComponent.pokemon_card
-      pokemon={@p2_pokemon}
-      player={if @player == :p2, do: "You", else: "Player 2"}
-      id="p2-pokemon"
-    />
-  </div>
-
-  <button :if={@p1_pokemon && @p2_pokemon} id="battle-button" class="battle-button">
-    Battle
-  </button>
+  <h2>Battle results:</h2>
+  <div class="pokemon-battle"></div>
 </section>
