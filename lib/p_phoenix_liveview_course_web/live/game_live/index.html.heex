@@ -7,6 +7,17 @@
   </:actions>
 </.header>
 
+<div class="my-5">
+  <.simple_form for={%{}} phx-change="search">
+    <.input 
+      name="query" 
+      value="" 
+      placeholder="Search games" 
+      phx-debounce="300" 
+    />
+  </.simple_form>
+</div>
+
 <.table
   id="games"
   rows={@streams.games}
