@@ -7,22 +7,24 @@
   </div>
 
   <h2>Battle area</h2>
+
   <div
-    :if={@p1 && @p1}
     class="pokemon-battle"
     id="battle-area"
     name={if @battle_result, do: "#{@battle_result.status}-battle", else: "battle"}
     phx-hook="PokemonBattle"
   >
     <PokemonComponents.pokemon_card
+      :if={@p1}
       pokemon={@p1.pokemon}
-      player={@p1.name}
+      player={if @role == :p1, do: "You", else: @p1.name}
       id={"#{@p1.id}-pokemon"}
     />
 
     <PokemonComponents.pokemon_card
+      :if={@p2}
       pokemon={@p2.pokemon}
-      player={@p2.name}
+      player={if @role == :p2, do: "You", else: @p2.name}
       id={"#{@p2.id}-pokemon"}
     />
   </div>

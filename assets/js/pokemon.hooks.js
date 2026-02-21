@@ -8,8 +8,14 @@ const PokemonBattle = {
       this.battleData = payload;
       this.battleSound = this.playSound(BATTLE_SOUND, 5);
     });
+  },
+  updated() {
     // client event
-    document.getElementById("battle-button").addEventListener("click", () => {
+    const battleButton = document.getElementById("battle-button");
+    battleButton?.removeEventListener("click", () => {
+      this.battle();
+    });
+    battleButton?.addEventListener("click", () => {
       this.battle();
     });
   },

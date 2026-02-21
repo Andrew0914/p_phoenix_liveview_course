@@ -14,29 +14,44 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   alias PPhoenixLiveviewCourseWeb.PokemonLive.Player
   alias PPhoenixLiveviewCourseWeb.PokemonLive.PokemonComponents
 
+  @battle_topic "pokemon_battle"
+
   @impl true
   def mount(_params, _session, socket) do
+    # Subscribe listener on connected mount
+    if connected?(socket) do
+      Phoenix.PubSub.subscribe(PPhoenixLiveviewCourse.PubSub, @battle_topic)
+    end
+
     {:ok, socket |> init_pokemons()}
   end
 
   @impl true
   def handle_event("choose_pokemon", %{"id" => pokemon_id}, socket) do
-    # YOU
-    p1_pokemon =
-      Enum.find(socket.assigns.pokemons, &(&1.id == String.to_integer(pokemon_id)))
+    pokemon = socket.assigns.pokemons |> Enum.find(&(&1.id == String.to_integer(pokemon_id)))
 
-    # CPU
-    p2_pokemon = random_pokemon(socket)
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      @battle_topic,
+      {:pokemon_chosen, socket.id, pokemon}
+    )
 
-    battle_socket =
-      socket
-      |> assign_player_1(p1_pokemon)
-      |> assign_player_2(p2_pokemon)
-      |> battle()
+    {:noreply, socket}
+  end
 
-    {:noreply,
-     battle_socket
-     |> push_event("battle:start", battle_socket.assigns.battle_result)}
+  @impl true
+  def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
+    socket = socket |> assign_player(sender_id, pokemon)
+
+    if socket.assigns.p1 && socket.assigns.p2 do
+      socket = socket |> battle()
+
+      {:noreply,
+       socket
+       |> push_event("battle:start", socket.assigns.battle_result)}
+    else
+      {:noreply, socket}
+    end
   end
 
   #  PRIVATES
@@ -63,11 +78,9 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     }
 
     available_pokemons = [charmander, squirtle, bulbasaur]
-    socket |> assign(pokemons: available_pokemons, p1: nil, p2: nil, battle_result: nil)
-  end
 
-  defp random_pokemon(socket) do
-    Enum.random(socket.assigns.pokemons)
+    socket
+    |> assign(pokemons: available_pokemons, p1: nil, p2: nil, battle_result: nil, role: nil)
   end
 
   defp battle(socket) do
@@ -95,13 +108,28 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     socket |> assign(battle_result: battle_result)
   end
 
-  defp assign_player_1(socket, pokemon) do
-    socket
-    |> assign(p1: %Player{id: :p1, name: "Player 1", pokemon: pokemon})
+  defp maybe_assign_role(socket, sender_id, role) do
+    if socket.id == sender_id do
+      socket |> assign(:role, role)
+    else
+      socket
+    end
   end
 
-  defp assign_player_2(socket, pokemon) do
-    socket
-    |> assign(p2: %Player{id: :p2, name: "Player 2", pokemon: pokemon})
+  defp assign_player(socket, sender_id, pokemon) do
+    cond do
+      socket.assigns.p1 == nil ->
+        socket
+        |> assign(:p1, %Player{id: :p1, name: "Player 1", pokemon: pokemon})
+        |> maybe_assign_role(sender_id, :p1)
+
+      socket.assigns.p2 == nil ->
+        socket
+        |> assign(:p2, %Player{id: :p2, name: "Player 2", pokemon: pokemon})
+        |> maybe_assign_role(sender_id, :p2)
+
+      true ->
+        socket
+    end
   end
 end
