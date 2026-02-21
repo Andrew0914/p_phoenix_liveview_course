@@ -4,10 +4,16 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
   alias PPhoenixLiveviewCourse.Catalog
   alias PPhoenixLiveviewCourse.Catalog.Game
   alias PPhoenixLiveviewCourseWeb.GameLive.Tomatometer
+  alias PPhoenixLiveviewCourse.Catalog.GameSearch
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :games, Catalog.list_games())}
+    changeset = GameSearch.changeset(%GameSearch{})
+
+    {:ok,
+      socket
+      |> assign(:search_form, to_form(changeset))
+      |> stream(:games, Catalog.list_games())}
   end
 
   @impl true
@@ -48,5 +54,30 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
     game = Catalog.get_game!(id)
     {:ok, _} = Catalog.delete_game(game)
     {:noreply, stream_delete(socket, :games, game)}
+  end
+
+  @impl true
+  def handle_event("filter-games", %{"game_search" => params}, socket) do
+    search_changeset =
+      %GameSearch{}
+      |> GameSearch.changeset(params)
+      |> Map.put(:action, :validate)
+
+      if search_changeset.valid? do
+        # Gets valid text and filters results
+        search_text = Ecto.Changeset.get_field(search_changeset, :search_text)
+        filtered_games = Catalog.list_games(search_text)
+
+        {:noreply,
+          socket
+          |> assign(:search_form, to_form(search_changeset))
+          |> stream(:games, filtered_games, reset: true)}
+      else
+        # Displays the full list if the search text has < 3 letters
+        {:noreply,
+          socket
+          |> assign(:search_form, to_form(search_changeset))
+          |> stream(:games, Catalog.list_games(), reset: true)}
+      end
   end
 end

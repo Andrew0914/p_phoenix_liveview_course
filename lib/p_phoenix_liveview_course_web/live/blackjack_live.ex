@@ -5,8 +5,28 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket |> assign(game_title: "Blackjack ♥️♣️♠️♦️") |> init_deck() |> first_deal(),
+    {:ok, socket |> assign(game_title: "Blackjack ♥️♣️♠️♦️"),
      layout: {PPhoenixLiveviewCourseWeb.Layouts, :game}}
+  end
+
+  @impl true
+  def handle_params(params, _url, socket) do
+    target =
+      case Map.get(params, "target") do
+        nil -> 21
+        val -> String.to_integer(val)
+      end
+
+    {:noreply,
+      socket
+      |> assign(target_score: target)
+      |> init_deck()
+      |> first_deal()}
+  end
+
+  @impl true
+  def handle_event("reset", _params, socket) do
+    {:noreply, socket |> init_deck() |> first_deal()}
   end
 
   @impl true
@@ -38,7 +58,7 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   end
 
   defp draw_card(socket, count) do
-    if points(socket.assigns.player) < 21 do
+    if points(socket.assigns.player) < socket.assigns.target_score do
       [card1] = Enum.take_random(@cards, count)
       new_player_cards = [card1 | socket.assigns.player]
 
@@ -49,7 +69,7 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   end
 
   defp cpu_draw_card(socket, count) do
-    if points(socket.assigns.cpu) < 17 do
+    if points(socket.assigns.cpu) < socket.assigns.target_score - 5 do
       [card1] = Enum.take_random(@cards, count)
       new_cpu_cards = [card1 | socket.assigns.cpu]
 
@@ -62,11 +82,12 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   defp handle_winner_on_draw(socket) do
     player_points = points(socket.assigns.player)
     cpu_points = points(socket.assigns.cpu)
+    target = socket.assigns.target_score
 
     winner =
       cond do
-        player_points > 21 -> :cpu
-        cpu_points > 21 -> :player
+        player_points > target -> :cpu
+        cpu_points > target -> :player
         true -> nil
       end
 
@@ -76,11 +97,12 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
   defp handle_winner_on_stand(socket) do
     player_points = points(socket.assigns.player)
     cpu_points = points(socket.assigns.cpu)
+    target = socket.assigns.target_score
 
     winner =
       cond do
-        player_points > 21 -> :cpu
-        cpu_points > 21 -> :player
+        player_points > target -> :cpu
+        cpu_points > target -> :player
         player_points > cpu_points -> :player
         player_points < cpu_points -> :cpu
         true -> :tie
