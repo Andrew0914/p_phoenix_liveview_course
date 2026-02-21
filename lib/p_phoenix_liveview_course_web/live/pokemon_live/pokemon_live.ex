@@ -1,8 +1,10 @@
 defmodule PPhoenixLiveviewCourseWeb.PokemonLive.Pokemon do
+  @derive Jason.Encoder
   defstruct id: nil, name: "", type: nil, image_url: ""
 end
 
 defmodule PPhoenixLiveviewCourseWeb.PokemonLive.Player do
+  @derive Jason.Encoder
   defstruct id: nil, name: "", pokemon: nil
 end
 
@@ -26,7 +28,15 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     # CPU
     p2_pokemon = random_pokemon(socket)
 
-    {:noreply, socket |> assign_player_1(p1_pokemon) |> assign_player_2(p2_pokemon) |> battle()}
+    battle_socket =
+      socket
+      |> assign_player_1(p1_pokemon)
+      |> assign_player_2(p2_pokemon)
+      |> battle()
+
+    {:noreply,
+     battle_socket
+     |> push_event("battle:start", battle_socket.assigns.battle_result)}
   end
 
   #  PRIVATES

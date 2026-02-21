@@ -12,6 +12,7 @@
     class="pokemon-battle"
     id="battle-area"
     name={if @battle_result, do: "#{@battle_result.status}-battle", else: "battle"}
+    phx-hook="PokemonBattle"
   >
     <PokemonComponents.pokemon_card
       pokemon={@p1.pokemon}
