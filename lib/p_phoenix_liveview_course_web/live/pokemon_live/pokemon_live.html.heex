@@ -27,21 +27,7 @@
     />
   </div>
 
-  <button
-    :if={@battle_result != nil}
-    class="battle-button"
-    phx-click={
-      JS.toggle_class("winner-animation",
-        to: "##{@battle_result.winner && @battle_result.winner.id}-pokemon"
-      )
-      |> JS.hide(
-        transition: "loser-animation",
-        to: "##{@battle_result.loser && @battle_result.loser.id}-pokemon",
-        time: 1500
-      )
-      |> JS.toggle_class("draw-animation", to: "[name='draw-battle']")
-    }
-  >
+  <button :if={@battle_result != nil} class="battle-button" id="battle-button">
     Battle
   </button>
 </section>
