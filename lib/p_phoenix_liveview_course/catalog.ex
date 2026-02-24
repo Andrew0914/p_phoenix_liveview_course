@@ -22,6 +22,24 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   end
 
   @doc """
+  Returns the list of games filtered by search query.
+
+  ## Examples
+
+      iex> search_games("zelda")
+      [%Game{}, ...]
+
+  """
+  def search_games(query) when is_binary(query) do
+    search_term = "%#{query}%"
+
+    from(g in Game, where: ilike(g.name, ^search_term))
+    |> Repo.all()
+  end
+
+  def search_games(_), do: list_games()
+
+  @doc """
   Gets a single game.
 
   Raises `Ecto.NoResultsError` if the Game does not exist.

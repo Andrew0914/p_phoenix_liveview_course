@@ -7,6 +7,17 @@
   </:actions>
 </.header>
 
+<div class="my-6">
+  <.form for={@search_form} phx-change="search" phx-debounce="300">
+    <.input
+      field={@search_form[:query]}
+      type="text"
+      placeholder="Search games... (min 3 characters)"
+      autocomplete="off"
+    />
+  </.form>
+</div>
+
 <.table
   id="games"
   rows={@streams.games}
