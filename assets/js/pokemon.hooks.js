@@ -3,12 +3,19 @@ const PokemonBattle = {
   battleData: null,
   battleSound: null,
   mounted() {
+    // server event
     this.handleEvent("battle:start", (payload) => {
       this.battleData = payload;
       this.battleSound = this.playSound(BATTLE_SOUND, 5);
     });
-
-    document.getElementById("battle-button").addEventListener("click", () => {
+  },
+  updated() {
+    // client event
+    const battleButton = document.getElementById("battle-button");
+    battleButton?.removeEventListener("click", () => {
+      this.battle();
+    });
+    battleButton?.addEventListener("click", () => {
       this.battle();
     });
   },
@@ -19,28 +26,25 @@ const PokemonBattle = {
     return audio;
   },
   applyBattleAnimation(player, animation) {
-    console.log(player);
-    const id = player.player + "-pokemon";
+    const id = player.id + "-pokemon";
     this.el.querySelector(`#${id}`).classList.add(animation);
     this.playSound(`/sounds/${player.pokemon.name.toLowerCase()}_cry.mp3`, 2);
   },
   battle() {
     // stop battle sound
     if (this.battleSound) this.battleSound.pause();
-
     // when Draw
     if (this.battleData.status == "draw") {
       this.el.classList.add("draw-animation");
     } else {
-      // when there is a winner
-
+      // set animation for loser first
       this.applyBattleAnimation(this.battleData.loser, "loser-animation");
       // hide loser
       setTimeout(() => {
-        const loserId = this.battleData.loser.player + "-pokemon";
-        this.querySelector(`#${loserId}`).style.display = "none";
+        const loserId = this.battleData.loser.id + "-pokemon";
+        this.el.querySelector(`#${loserId}`).style.display = "none";
       }, 2000);
-
+      // set animation for winner
       setTimeout(() => {
         this.applyBattleAnimation(this.battleData.winner, "winner-animation");
       }, 2500);

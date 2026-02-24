@@ -1,20 +1,26 @@
 defmodule PPhoenixLiveviewCourseWeb.PokemonLive.Pokemon do
   @derive Jason.Encoder
-  defstruct name: "", type: nil, image_url: "", id: nil
+  defstruct id: nil, name: "", type: nil, image_url: ""
+end
+
+defmodule PPhoenixLiveviewCourseWeb.PokemonLive.Player do
+  @derive Jason.Encoder
+  defstruct id: nil, name: "", pokemon: nil
 end
 
 defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   use PPhoenixLiveviewCourseWeb, :live_view
   alias PPhoenixLiveviewCourseWeb.PokemonLive.Pokemon
-  alias PPhoenixLiveviewCourseWeb.PokemonLive.PokemonComponent
+  alias PPhoenixLiveviewCourseWeb.PokemonLive.Player
+  alias PPhoenixLiveviewCourseWeb.PokemonLive.PokemonComponents
 
   @battle_topic "pokemon_battle"
 
   @impl true
   def mount(_params, _session, socket) do
-    # Subscribe listener
+    # Subscribe listener on connected mount
     if connected?(socket) do
-      Phoenix.PubSub.subscribe(PPhoenixLiveviewCourse.PubSub, "pokemon_battle")
+      Phoenix.PubSub.subscribe(PPhoenixLiveviewCourse.PubSub, @battle_topic)
     end
 
     {:ok, socket |> init_pokemons()}
@@ -35,30 +41,14 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
 
   @impl true
   def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
-    socket =
-      cond do
-        socket.assigns.p1_pokemon == nil ->
-          socket
-          |> assign(:p1_pokemon, pokemon)
-          |> maybe_assign_player(sender_id, :p1)
+    socket = socket |> assign_player(sender_id, pokemon)
 
-        socket.assigns.p2_pokemon == nil ->
-          socket
-          |> assign(:p2_pokemon, pokemon)
-          |> maybe_assign_player(sender_id, :p2)
-
-        true ->
-          socket
-      end
-
-    if socket.assigns.p1_pokemon && socket.assigns.p2_pokemon do
-      result = battle(socket.assigns.p1_pokemon, socket.assigns.p2_pokemon)
-      payload = build_battle_payload(socket.assigns.p1_pokemon, socket.assigns.p2_pokemon)
+    if socket.assigns.p1 && socket.assigns.p2 do
+      socket = socket |> battle()
 
       {:noreply,
        socket
-       |> assign(result: result)
-       |> push_event("battle:start", payload)}
+       |> push_event("battle:start", socket.assigns.battle_result)}
     else
       {:noreply, socket}
     end
@@ -88,49 +78,58 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     }
 
     available_pokemons = [charmander, squirtle, bulbasaur]
-    socket |> assign(pokemons: available_pokemons, p1_pokemon: nil, p2_pokemon: nil, result: nil)
+
+    socket
+    |> assign(pokemons: available_pokemons, p1: nil, p2: nil, battle_result: nil, role: nil)
   end
 
-  defp random_pokemon(socket) do
-    Enum.random(socket.assigns.pokemons)
+  defp battle(socket) do
+    p1_pokemon = socket.assigns.p1.pokemon
+    p2_pokemon = socket.assigns.p2.pokemon
+
+    beats = %{
+      fire: :grass,
+      water: :fire,
+      grass: :water
+    }
+
+    battle_result =
+      cond do
+        p1_pokemon.type == p2_pokemon.type ->
+          %{status: :draw, winner: nil, loser: nil}
+
+        Map.get(beats, p1_pokemon.type) == p2_pokemon.type ->
+          %{status: :p1, winner: socket.assigns.p1, loser: socket.assigns.p2}
+
+        true ->
+          %{status: :p2, winner: socket.assigns.p2, loser: socket.assigns.p1}
+      end
+
+    socket |> assign(battle_result: battle_result)
   end
 
-  defp battle(p1_pokemon, p2_pokemon) do
-    cond do
-      p1_pokemon.type == :fire && p2_pokemon.type == :grass -> {:p1, :p2}
-      p1_pokemon.type == :water && p2_pokemon.type == :fire -> {:p1, :p2}
-      p1_pokemon.type == :grass && p2_pokemon.type == :water -> {:p1, :p2}
-      p1_pokemon.type == p2_pokemon.type -> :draw
-      true -> {:p2, :p1}
-    end
-  end
-
-  defp maybe_assign_player(socket, sender_id, role) do
+  defp maybe_assign_role(socket, sender_id, role) do
     if socket.id == sender_id do
-      assign(socket, :player, role)
+      socket |> assign(:role, role)
     else
       socket
     end
   end
 
-  defp build_battle_payload(p1_pokemon, p2_pokemon) do
-    case battle(p1_pokemon, p2_pokemon) do
-      :draw ->
-        %{status: :draw, winner: nil, loser: nil}
+  defp assign_player(socket, sender_id, pokemon) do
+    cond do
+      socket.assigns.p1 == nil ->
+        socket
+        |> assign(:p1, %Player{id: :p1, name: "Player 1", pokemon: pokemon})
+        |> maybe_assign_role(sender_id, :p1)
 
-      {:p1, :p2} ->
-        %{
-          status: :p1,
-          winner: %{player: :p1, pokemon: p1_pokemon},
-          loser: %{player: :p2, pokemon: p2_pokemon}
-        }
+      socket.assigns.p2 == nil ->
+        socket
+        |> assign(:p2, %Player{id: :p2, name: "Player 2", pokemon: pokemon})
+        |> maybe_assign_role(sender_id, :p2)
 
-      {:p2, :p1} ->
-        %{
-          status: :p2,
-          winner: %{player: :p2, pokemon: p2_pokemon},
-          loser: %{player: :p1, pokemon: p1_pokemon}
-        }
+      true ->
+        socket
     end
   end
 end
