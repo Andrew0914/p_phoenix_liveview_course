@@ -1,29 +1,10 @@
 <section>
+  <strong>Blackjack</strong>
+
   <h3 class="text-xl">Deck</h3>
   <div class="flex flex-row justify-center gap-2 my-2">
     <%= for card <- @cards do %>
-      <span class="bg-neutral-950 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
-        {card}
-      </span>
-    <% end %>
-  </div>
-
-  <h3 class="text-xl">CPU</h3>
-  <div class="flex flex-row justify-center gap-2 my-2">
-    <span class="bg-red-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
-      {@cpu |> Enum.at(-1)}
-    </span>
-    <%= for card <- Enum.take(@cpu, length(@cpu) - 1) do %>
-      <span class="bg-red-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
-        {if @winner != nil, do: card, else: "?"}
-      </span>
-    <% end %>
-  </div>
-
-  <h3 class="text-xl">PLAYER</h3>
-  <div class="flex flex-row justify-center gap-2 my-2">
-    <%= for card <- @player do %>
-      <span class="bg-blue-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
+      <span class="bg-neutral-950 text-white text-lg rounded-sm px-4 py-2 inline-flex items-center justify-center">
         {card}
       </span>
     <% end %>
@@ -34,25 +15,52 @@
       :player -> "Player wins 🏆!"
       :cpu -> "CPU wins 🏆!"
       :tie -> "It's a tie 🤷!"
-      nil -> "Game in progress... ⏳"
+      nil -> "Game in progress ... ⏳"
     end}
   </h2>
 
-  <footer class="flex flex-row justify-center gap-2 mt-8">
+  <div>
+    <h3 class="text-xl">Player</h3>
+    <div class="flex flex-row justify-center gap-2 my-2">
+      <%= for card <- @player do %>
+        <span class="bg-blue-600 text-white text-lg rounded-sm px-4 py-2 inline-flex items-center justify-center">
+          {card}
+        </span>
+      <% end %>
+    </div>
+  </div>
+
+  <h3 class="text-xl">CPU</h3>
+  <div class="flex flex-row justify-center gap-2 my-2">
+    <span class="bg-red-600 text-white text-lg rounded-sm px-4 py-2 inline-flex items-center justify-center">
+      {@cpu |> Enum.at(-1)}
+    </span>
+    <%= for card <- Enum.take(@cpu, length(@cpu) - 1) do %>
+      <span class="bg-red-600 text-white text-lg rounded-sm px-4 py-2 inline-flex items-center justify-center">
+        {if @winner != nil, do: card, else: "?"}
+      </span>
+    <% end %>
+  </div>
+
+  <footer class="flex flex-row justify-center gap-2 my-2">
     <button
-      class="shadow-lg bg-gray-500 text-white text-lg rounded-md px-4 py-2 inline-flex items-center justify-center"
-      type="button"
+      class="shadow-lg bg-gray-500 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
       phx-click="draw"
       phx-value-count="1"
     >
       Draw
     </button>
     <button
-      class="shadow-lg bg-gray-800 text-white text-lg rounded-md px-4 py-2 inline-flex items-center justify-center"
-      type="button"
+      class="shadow-lg bg-gray-500 hover:bg-gray-800 text-white font-bold py-2 px-4 rounded"
       phx-click="stand"
     >
       Stand
+    </button>
+    <button
+      class="shadow-lg bg-red-600 hover:bg-red-800 text-white font-bold py-2 px-4 rounded"
+      phx-click="reset"
+    >
+      Reset
     </button>
   </footer>
 </section>

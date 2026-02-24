@@ -101,4 +101,21 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   def change_game(%Game{} = game, attrs \\ %{}) do
     Game.changeset(game, attrs)
   end
+
+  @doc """
+  Search games by name. Returns a list of games whose names match the given query (case-insensitive).
+  The query string is matched using a partial search (`ilike/2`), so any substring of the name will
+  be considered a match.
+  """
+
+  def search_games(query) when is_binary(query) do
+    Repo.all(from g in Game, where: ilike(g.name, ^"%#{query}%"))
+  end
+
+  # def search_games(query) when is_binary(query) do
+  # if String.length(query) >= 3 do
+  #  Repo.all(from g in Game, where: ilike(g.name, ^"%#{query}%"))
+  # else
+  #  []
+  # end
 end
