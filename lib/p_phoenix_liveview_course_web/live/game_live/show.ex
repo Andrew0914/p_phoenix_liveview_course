@@ -11,11 +11,15 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
+    game = Catalog.get_game!(id)
+    {:ok, game} = Catalog.increment_views(game)
+
     {:noreply,
-     socket
-     |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:game, Catalog.get_game!(id))}
+    socket
+    |> assign(:page_title, page_title(socket.assigns.live_action))
+    |> assign(:game, game)}
   end
+
 
   @impl true
   def handle_info({:flash, type, message}, socket) do
