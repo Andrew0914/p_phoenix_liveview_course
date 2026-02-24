@@ -39,20 +39,30 @@
   </h2>
 
   <footer class="flex flex-row justify-center gap-2 mt-8">
-    <button
-      class="shadow-lg bg-gray-500 text-white text-lg rounded-md px-4 py-2 inline-flex items-center justify-center"
-      type="button"
-      phx-click="draw"
-      phx-value-count="1"
-    >
-      Draw
-    </button>
-    <button
-      class="shadow-lg bg-gray-800 text-white text-lg rounded-md px-4 py-2 inline-flex items-center justify-center"
-      type="button"
-      phx-click="stand"
-    >
-      Stand
-    </button>
+    <%= if @winner == nil do %>
+      <button
+        class="shadow-lg bg-gray-500 text-white text-lg rounded-md px-4 py-2 inline-flex items-center justify-center"
+        type="button"
+        phx-click="draw"
+        phx-value-count="1"
+      >
+        Draw
+      </button>
+      <button
+        class="shadow-lg bg-gray-800 text-white text-lg rounded-md px-4 py-2 inline-flex items-center justify-center"
+        type="button"
+        phx-click="stand"
+      >
+        Stand
+      </button>
+    <% else %>
+      <button
+        class="shadow-lg bg-green-600 hover:bg-green-700 text-white text-lg rounded-md px-6 py-3 inline-flex items-center justify-center font-semibold"
+        type="button"
+        phx-click="reset"
+      >
+        🎮 Play Again
+      </button>
+    <% end %>
   </footer>
 </section>
