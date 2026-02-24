@@ -75,7 +75,6 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Tomatometer do
 
     case Rating.create_tomatoes(attrs) do
       {:ok, tomatoes} ->
-        IO.inspect(tomatoes)
         socket |> assign(:tomatoes, tomatoes)
 
       _error ->

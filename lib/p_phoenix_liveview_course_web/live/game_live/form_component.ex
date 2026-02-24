@@ -68,14 +68,12 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.FormComponent do
        max_entries: 1,
        max_file_size: 9_000_000,
        auto_upload: true
-     )
-     |> IO.inspect()}
+     )}
   end
 
   @impl true
   def handle_event("validate", %{"game" => game_params}, socket) do
     changeset = Catalog.change_game(socket.assigns.game, game_params)
-    IO.inspect(changeset, label: "Before converting into form 👉")
     {:noreply, assign(socket, form: to_form(changeset, action: :validate))}
   end
 
