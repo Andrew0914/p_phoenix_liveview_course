@@ -21,7 +21,7 @@ defmodule PPhoenixLiveviewCourse.Catalog do
     Repo.all(Game)
   end
 
-    @doc """
+  @doc """
   Searches games by name (case insensitive)
   Returns all games if query is nil or empty
   """
@@ -30,7 +30,7 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   def search_games(query) do
     Repo.all(
       from g in Game,
-      where: ilike(g.name, ^"%#{query}%")
+        where: ilike(g.name, ^"%#{query}%")
     )
   end
 
@@ -113,5 +113,9 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   """
   def change_game(%Game{} = game, attrs \\ %{}) do
     Game.changeset(game, attrs)
+  end
+
+  def increment_views(%Game{} = game) do
+    game |> Ecto.Changeset.change(views: game.views + 1) |> Repo.update()
   end
 end

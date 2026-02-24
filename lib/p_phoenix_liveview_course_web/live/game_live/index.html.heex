@@ -22,26 +22,22 @@
         autocomplete="off"
       />
     </div>
-    
+
     <%= if @query do %>
       <div class="flex items-center gap-2 mb-2">
         <span class="text-sm text-gray-600">
-          Searching: "<%= @query %>"
+          Searching: "{@query}"
         </span>
-        <button
-          type="button"
-          phx-click="clear_search"
-          class="text-red-600 hover:text-red-800"
-        >
+        <button type="button" phx-click="clear_search" class="text-red-600 hover:text-red-800">
           ✕ Clear
         </button>
       </div>
     <% end %>
   </.form>
 
-<%= if @query && !@has_results? do %>
+  <%= if @query && !@has_results? do %>
     <div class="mt-4 p-4 bg-yellow-100 text-yellow-800 rounded">
-      No games found matching "<%= @query %>"
+      No games found matching "{@query}"
     </div>
   <% end %>
 </div>
@@ -53,6 +49,15 @@
 >
   <:col :let={{_id, game}} label="Name">{game.name}</:col>
   <:col :let={{_id, game}} label="Description">{game.description}</:col>
+  
+<!--  Nueva columna de vistas -->
+  <:col :let={{_id, game}} label="Views">
+    <.live_component
+      module={PPhoenixLiveviewCourseWeb.GameLive.ViewsComponent}
+      id={"views-#{game.id}"}
+      game={game}
+    />
+  </:col>
 
   <:col :let={{_id, game}} label="Tomatometer">
     <.live_component module={Tomatometer} id={"tomatometer-#{game.id}"} game={game} />

@@ -19,6 +19,12 @@
   <:item title="Tomatoes Rating">
     <.live_component module={Tomatometer} id={"tomatometer-#{@game.id}"} game={@game} />
   </:item>
+
+  <:item title="Views">
+    <.live_component module={PPhoenixLiveviewCourseWeb.GameLive.ViewsComponent}
+                    id={"views-#{@game.id}"}
+                    game={@game} />
+  </:item>
 </.list>
 
 <.back navigate={~p"/games"}>Back to games</.back>
