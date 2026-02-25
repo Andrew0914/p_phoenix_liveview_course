@@ -36,6 +36,10 @@
     animation: slot-machine-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
+.no-animate {
+    animation: none !important;
+}
+
 .view-label {
     font-size: 10px;
     color: #94a3b8; /* slate-400 */

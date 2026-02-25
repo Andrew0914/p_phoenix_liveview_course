@@ -3,18 +3,18 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.ViewCounterComponent do
 
   attr :views, :integer, required: true
   attr :class, :string, default: ""
+  attr :animate, :boolean, default: true
 
 
   def render(assigns) do
     ~H"""
     <div class={"view-counter-container #{@class}"}>
-      <div class="view-status-dot">
-        <span class="ping"></span>
-        <span class="dot"></span>
-      </div>
 
       <div class="view-number-wrapper">
-        <span id={"view-animate-#{@views}"} class="view-number-text">
+        <span
+          id={if @animate, do: "view-animate-#{@views}", else: "static-view"}
+          class={["view-number-text", !@animate && "no-animate"]}
+        >
           {format_views(@views)}
         </span>
       </div>
