@@ -21,7 +21,15 @@
   </:item>
 </.list>
 
-<.back navigate={~p"/games"}>Back to games</.back>
+<div class="flex items-center justify-between mt-10">
+  <div class="[&_.mt-16]:mt-0">
+    <.back navigate={~p"/games"}>Back to games</.back>
+  </div>
+  <ViewCounterComponent.render
+    views={@game.views}
+    animate={connected?(@socket)}
+  />
+</div>
 
 <.modal :if={@live_action == :edit} id="game-modal" show on_cancel={JS.patch(~p"/games/#{@game}")}>
   <.live_component

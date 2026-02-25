@@ -3,5 +3,6 @@
 @import "tailwindcss/utilities";
 @import "tomatometer.css";
 @import "pokemon.css";
+@import "view_counter.css";
 
 /* This file is for your main application CSS */

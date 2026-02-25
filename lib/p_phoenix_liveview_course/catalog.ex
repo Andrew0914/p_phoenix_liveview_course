@@ -101,4 +101,22 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   def change_game(%Game{} = game, attrs \\ %{}) do
     Game.changeset(game, attrs)
   end
+
+  def increment_game_views(id) do
+    # Atomic increment
+    {1, _} =
+      from(g in Game, where: g.id == ^id)
+      |> Repo.update_all(inc: [views: 1])
+
+    game = get_game!(id)
+
+    # Notify the entire app through the "game_views" channel
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      "game_views",
+      {:game_updated, game}
+    )
+
+    {:ok, game}
+  end
 end

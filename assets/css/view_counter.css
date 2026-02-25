@@ -1,0 +1,48 @@
+@keyframes slot-machine-up {
+    0% {
+        transform: translateY(100%);
+        opacity: 0;
+    }
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.view-counter-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 10px;
+    background-color: #0f172a; /* bg-slate-900 */
+    border: 1px solid #334155; /* border-slate-700 */
+    width: fit-content;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+}
+
+.view-number-wrapper {
+    overflow: hidden;
+    height: 1.25rem;
+    display: flex;
+    align-items: center;
+}
+
+.view-number-text {
+    display: inline-block;
+    font-size: 0.8rem;
+    font-weight: 500;
+    color: #ffffff;
+    animation: slot-machine-up 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.no-animate {
+    animation: none !important;
+}
+
+.view-label {
+    font-size: 10px;
+    color: #94a3b8; /* slate-400 */
+    text-transform: uppercase;
+    font-weight: 500;
+}
