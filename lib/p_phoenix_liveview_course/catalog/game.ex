@@ -9,6 +9,7 @@ defmodule PPhoenixLiveviewCourse.Catalog.Game do
     field :unit_price, :float
     field :sku, :integer
     field(:image_upload, :string)
+    field :views, :integer, default: 0
     has_one :tomatoes, Tomatoes, on_delete: :delete_all
 
     timestamps(type: :utc_datetime)
@@ -17,7 +18,7 @@ defmodule PPhoenixLiveviewCourse.Catalog.Game do
   @doc false
   def changeset(game, attrs) do
     game
-    |> cast(attrs, [:name, :description, :unit_price, :sku, :image_upload])
+    |> cast(attrs, [:name, :description, :unit_price, :sku, :image_upload, :views])
     |> validate_required([:name, :description, :unit_price, :sku])
     |> unique_constraint(:sku)
     |> validate_length(:name, min: 5, max: 100)

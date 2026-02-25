@@ -4,10 +4,14 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
   alias PPhoenixLiveviewCourse.Catalog
   alias PPhoenixLiveviewCourse.Catalog.Game
   alias PPhoenixLiveviewCourseWeb.GameLive.Tomatometer
+  alias PPhoenixLiveviewCourseWeb.GameLive.SearchForm
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, stream(socket, :games, Catalog.list_games())}
+    changeset = SearchForm.changeset(%SearchForm{}, %{})
+    {:ok, socket
+          |> assign(:form, to_form(changeset))
+          |> stream(:games, Catalog.list_games())}
   end
 
   @impl true
@@ -49,4 +53,26 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
     {:ok, _} = Catalog.delete_game(game)
     {:noreply, stream_delete(socket, :games, game)}
   end
+
+  @impl true
+    def handle_event("search", %{"search_form" => search_params}, socket) do
+      changeset = SearchForm.changeset(%SearchForm{}, search_params)
+
+      if changeset.valid? do
+       query = Ecto.Changeset.get_field(changeset, :query)
+        games = Catalog.search_games(query)
+
+        {:noreply,
+         socket
+         |> assign(:form, to_form(changeset))
+         |> stream(:games, games, reset: true)}
+      else
+        changeset = Map.put(changeset, :action, :validate)
+
+        {:noreply,
+         socket
+         |> assign(:form, to_form(changeset))
+         |> stream(:games, Catalog.list_games(), reset: true)}
+      end
+    end
 end
