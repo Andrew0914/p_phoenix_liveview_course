@@ -7,6 +7,22 @@
   </:actions>
 </.header>
 
+<%!-- Search bar --%>
+<div class="my-6 border-b pb-6">
+  <.simple_form for={@search_form} phx-change="filter-games">
+    <div class="flex items-center gap-4">
+      <div class="grow">
+        <.input
+          field={@search_form[:search_text]}
+          type="text"
+          placeholder="Search game"
+          phx-debounce="300"
+        />
+      </div>
+    </div>
+  </.simple_form>
+</div>
+
 <.table
   id="games"
   rows={@streams.games}

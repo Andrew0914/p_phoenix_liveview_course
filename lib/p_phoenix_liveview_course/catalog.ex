@@ -22,6 +22,22 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   end
 
   @doc """
+  Returns a list of games that partially match the provided name.
+  The search is case-insensitive.
+  """
+  def list_games(name_query) do
+    search_pattern = "%#{name_query}%"
+
+    query =
+      from(game in Game,
+        where: ilike(game.name, ^search_pattern),
+        order_by: [asc: game.name]
+      )
+
+    Repo.all(query)
+  end
+
+  @doc """
   Gets a single game.
 
   Raises `Ecto.NoResultsError` if the Game does not exist.
