@@ -30,6 +30,13 @@
     <.live_component module={Tomatometer} id={"tomatometer-#{game.id}"} game={game} />
   </:col>
 
+  <:col :let={{_id, game}} label="Views">
+    <div class="views-counter-compact">
+      <.icon name="hero-eye" class="views-counter-icon" />
+      <span class="views-counter-number">{game.views_count}</span>
+    </div>
+  </:col>
+
   <:action :let={{_id, game}}>
     <div class="sr-only">
       <.link navigate={~p"/games/#{game}"}>Show</.link>

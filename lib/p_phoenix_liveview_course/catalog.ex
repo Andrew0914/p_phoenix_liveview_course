@@ -119,4 +119,18 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   def change_game(%Game{} = game, attrs \\ %{}) do
     Game.changeset(game, attrs)
   end
+
+  @doc """
+  Increments the views count for a game atomically.
+
+  ## Examples
+
+      iex> increment_game_views(123)
+      {1, nil}
+
+  """
+  def increment_game_views(game_id) do
+    from(g in Game, where: g.id == ^game_id)
+    |> Repo.update_all(inc: [views_count: 1])
+  end
 end

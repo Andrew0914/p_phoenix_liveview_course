@@ -1,0 +1,72 @@
+/* View Counter Styles */
+.views-counter {
+    /* LAYOUT */
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 20px;
+    box-sizing: border-box;
+    /* VISUAL */
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.05) 100%);
+    border: 1.5px solid rgba(59, 130, 246, 0.3);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px 0 rgba(59, 130, 246, 0.15);
+    /* BEHAVIOR */
+    transition: all 0.3s ease;
+}
+
+.views-counter:hover {
+    background: linear-gradient(135deg, rgba(59, 130, 246, 0.15) 0%, rgba(37, 99, 235, 0.08) 100%);
+    border-color: rgba(59, 130, 246, 0.5);
+    box-shadow: 0 12px 48px 0 rgba(59, 130, 246, 0.2);
+    transform: translateY(-2px);
+}
+
+.views-counter-icon {
+    width: 24px;
+    height: 24px;
+    color: #3b82f6;
+    filter: drop-shadow(0 2px 4px rgba(59, 130, 246, 0.3));
+}
+
+.views-counter-number {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1e40af;
+    letter-spacing: -0.5px;
+}
+
+.views-counter-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: #6b7280;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Compact variant for table */
+.views-counter-compact {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 12px;
+    background: rgba(59, 130, 246, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.2);
+    border-radius: 12px;
+    transition: all 0.2s ease;
+}
+
+.views-counter-compact:hover {
+    background: rgba(59, 130, 246, 0.12);
+    border-color: rgba(59, 130, 246, 0.4);
+}
+
+.views-counter-compact .views-counter-icon {
+    width: 16px;
+    height: 16px;
+}
+
+.views-counter-compact .views-counter-number {
+    font-size: 14px;
+    font-weight: 600;
+}

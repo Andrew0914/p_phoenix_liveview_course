@@ -3,7 +3,7 @@ import Config
 # Configure your database
 config :p_phoenix_liveview_course, PPhoenixLiveviewCourse.Repo,
   username: "postgres",
-  password: "postgres",
+  password: "059058",
   hostname: "localhost",
   database: "p_phoenix_liveview_course_dev",
   stacktrace: true,
