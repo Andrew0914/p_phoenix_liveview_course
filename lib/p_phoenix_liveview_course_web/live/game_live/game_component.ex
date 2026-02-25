@@ -24,6 +24,7 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.GameComponent do
       phx-value-type={Atom.to_string(@type)}
       phx-value-count={@count}
       class="tomatoe-button"
+      data-testid="tomatoe-button"
     >
       <span>{@count}</span>
       <span>{if @type == :good, do: "🍏", else: "🍎"}</span>
@@ -45,12 +46,12 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.GameComponent do
     ~H"""
     <div class="tomato-scoreboard">
       <div>
-        <span>{@good_percentage}%</span>
+        <span data-testid="good-score">{@good_percentage}%</span>
         <span>GOOD!</span>
       </div>
       <div class="divider" />
       <div>
-        <span>{@bad_percentage}%</span>
+        <span data-testid="bad-score">{@bad_percentage}%</span>
         <span>BAD!</span>
       </div>
     </div>

@@ -28,6 +28,8 @@ defmodule PPhoenixLiveviewCourseWeb.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import PPhoenixLiveviewCourseWeb.ConnCase
+      import Phoenix.LiveViewTest
+      import Phoenix.Component
     end
   end
 

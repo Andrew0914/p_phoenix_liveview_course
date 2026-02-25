@@ -9,19 +9,19 @@
   </div>
 
   <h3 class="text-xl">CPU</h3>
-  <div class="flex flex-row justify-center gap-2 my-2">
-    <span class="bg-red-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
+  <div class="flex flex-row justify-center gap-2 my-2" data-testid="cpu-cards">
+    <span class=" bg-red-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
       {@cpu |> Enum.at(-1)}
     </span>
     <%= for card <- Enum.take(@cpu, length(@cpu) - 1) do %>
-      <span class="bg-red-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
+      <span class=" bg-red-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
         {if @winner != nil, do: card, else: "?"}
       </span>
     <% end %>
   </div>
 
   <h3 class="text-xl">PLAYER</h3>
-  <div class="flex flex-row justify-center gap-2 my-2">
+  <div class="flex flex-row justify-center gap-2 my-2" data-testid="player-cards">
     <%= for card <- @player do %>
       <span class="bg-blue-600 text-white text-lg rounded-sm  px-4 py-2 inline-flex items-center justify-center">
         {card}
