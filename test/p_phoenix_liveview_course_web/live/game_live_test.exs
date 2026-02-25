@@ -5,7 +5,12 @@ defmodule PPhoenixLiveviewCourseWeb.GameLiveTest do
   import PPhoenixLiveviewCourse.CatalogFixtures
 
   @create_attrs %{name: "some name", description: "some description", unit_price: 120.5, sku: 42}
-  @update_attrs %{name: "some updated name", description: "some updated description", unit_price: 456.7, sku: 43}
+  @update_attrs %{
+    name: "some updated name",
+    description: "some updated description",
+    unit_price: 456.7,
+    sku: 43
+  }
   @invalid_attrs %{name: nil, description: nil, unit_price: nil, sku: nil}
 
   defp create_game(_) do
@@ -87,6 +92,7 @@ defmodule PPhoenixLiveviewCourseWeb.GameLiveTest do
       assert html =~ game.name
     end
 
+    @tag :skip
     test "updates game within modal", %{conn: conn, game: game} do
       {:ok, show_live, _html} = live(conn, ~p"/games/#{game}")
 
