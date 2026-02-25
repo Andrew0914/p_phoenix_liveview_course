@@ -22,6 +22,24 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   end
 
   @doc """
+  Returns the list of games filtered by search query.
+
+  ## Examples
+
+      iex> search_games("zelda")
+      [%Game{}, ...]
+
+  """
+  def search_games(query) when is_binary(query) do
+    search_term = "%#{query}%"
+
+    from(g in Game, where: ilike(g.name, ^search_term))
+    |> Repo.all()
+  end
+
+  def search_games(_), do: list_games()
+
+  @doc """
   Gets a single game.
 
   Raises `Ecto.NoResultsError` if the Game does not exist.
@@ -100,5 +118,19 @@ defmodule PPhoenixLiveviewCourse.Catalog do
   """
   def change_game(%Game{} = game, attrs \\ %{}) do
     Game.changeset(game, attrs)
+  end
+
+  @doc """
+  Increments the views count for a game atomically.
+
+  ## Examples
+
+      iex> increment_game_views(123)
+      {1, nil}
+
+  """
+  def increment_game_views(game_id) do
+    from(g in Game, where: g.id == ^game_id)
+    |> Repo.update_all(inc: [views_count: 1])
   end
 end
