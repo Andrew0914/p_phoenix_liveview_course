@@ -11,10 +11,29 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
+    game = Catalog.get_game!(id)
+    # Incrementar vistas
+    updated_game =
+      game
+      |> Ecto.Changeset.change(views: game.views + 1)
+      |> PPhoenixLiveviewCourse.Repo.update!()
+
     {:noreply,
      socket
      |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:game, Catalog.get_game!(id))}
+     |> assign(:game, updated_game)}
+  end
+
+  @impl true
+  def handle_event("add_view", %{"id" => id}, socket) do
+    game = Catalog.get_game!(id)
+
+    updated_game =
+      game
+      |> Ecto.Changeset.change(views: game.views + 1)
+      |> PPhoenixLiveviewCourse.Repo.update!()
+
+    {:noreply, assign(socket, game: updated_game)}
   end
 
   @impl true

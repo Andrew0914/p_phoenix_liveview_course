@@ -5,11 +5,29 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
   alias PPhoenixLiveviewCourse.Catalog.Game
   alias PPhoenixLiveviewCourseWeb.GameLive.Tomatometer
 
+  defmodule SearchForm do
+    use Ecto.Schema
+    import Ecto.Changeset
+
+    embedded_schema do
+      field :query, :string
+    end
+
+    def changeset(form, attrs) do
+      form
+      |> cast(attrs, [:query])
+      |> validate_length(:query, min: 3)
+    end
+  end
+
   @impl true
   def mount(_params, _session, socket) do
+    changeset = SearchForm.changeset(%SearchForm{}, %{})
+
     {:ok,
      socket
-     |> assign(:results, Catalog.list_games())}
+     |> stream(:games, Catalog.list_games())
+     |> assign(:form, to_form(changeset))}
   end
 
   @impl true
@@ -54,8 +72,32 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
 
   # ---  Búsqueda en tiempo real ---
   @impl true
-  def handle_event("search", %{"search_form" => %{"query" => query}}, socket) do
-    results = Catalog.search_games(query)
-    {:noreply, assign(socket, :results, results)}
+  def handle_event("search", %{"search_form" => params}, socket) do
+    changeset = SearchForm.changeset(%SearchForm{}, params)
+
+    games =
+      if changeset.valid? do
+        query = Ecto.Changeset.get_field(changeset, :query)
+        Catalog.search_games(query)
+      else
+        Catalog.list_games()
+      end
+
+    {:noreply,
+     socket
+     |> assign(:form, to_form(changeset))
+     |> stream(:games, games, reset: true)}
+  end
+
+  @impl true
+  def handle_event("add_view", %{"id" => id}, socket) do
+    game = Catalog.get_game!(id)
+
+    updated_game =
+      game
+      |> Ecto.Changeset.change(views: game.views + 1)
+      |> PPhoenixLiveviewCourse.Repo.update!()
+
+    {:noreply, stream_insert(socket, :games, updated_game)}
   end
 end

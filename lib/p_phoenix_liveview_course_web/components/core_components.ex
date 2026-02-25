@@ -673,4 +673,29 @@ defmodule PPhoenixLiveviewCourseWeb.CoreComponents do
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
   end
+
+  def views_badge(assigns) do
+    ~H"""
+    <button
+      phx-click="add_view"
+      phx-value-id={@game_id}
+      class="
+        inline-flex items-center gap-1
+        bg-gray-100 text-gray-700
+        px-3 py-1
+        rounded-full
+        text-xs font-semibold
+        shadow-sm
+        transition-all duration-200 ease-in-out
+        hover:bg-indigo-500
+        hover:text-white
+        hover:shadow-md
+        hover:scale-105
+        active:scale-95
+      "
+    >
+      👁 {@views} views
+    </button>
+    """
+  end
 end

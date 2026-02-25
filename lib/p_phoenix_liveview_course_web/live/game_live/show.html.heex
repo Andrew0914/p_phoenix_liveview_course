@@ -10,6 +10,9 @@
 
 <.list>
   <:item title="Name">{@game.name}</:item>
+  <:item title="Views">
+    <.views_badge views={@game.views} game_id={@game.id} />
+  </:item>
   <:item title="Description">{@game.description}</:item>
   <:item title="Unit price">{@game.unit_price}</:item>
   <:item title="Sku">{@game.sku}</:item>

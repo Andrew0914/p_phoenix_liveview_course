@@ -11,10 +11,25 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
     {:ok,
      socket
      |> assign(:game_title, "Blackjack ♥️♣️♠️♦️")
-     # valor por defecto
      |> assign(:winning_value, 21)
-     |> init_deck()
-     |> first_deal(), layout: {PPhoenixLiveviewCourseWeb.Layouts, :game}}
+     |> init_game(), layout: {PPhoenixLiveviewCourseWeb.Layouts, :game}}
+  end
+
+  @impl true
+  def handle_params(params, _uri, socket) do
+    winning_value =
+      case Map.get(params, "winning_value") do
+        nil ->
+          21
+
+        value ->
+          case Integer.parse(value) do
+            {num, _} when num > 0 -> num
+            _ -> 21
+          end
+      end
+
+    {:noreply, assign(socket, :winning_value, winning_value)}
   end
 
   @impl true
@@ -36,81 +51,52 @@ defmodule PPhoenixLiveviewCourseWeb.BlackjackLive do
 
   @impl true
   def handle_event("reset", _params, socket) do
-    {:noreply,
-     socket
-     |> init_deck()
-     |> first_deal()
-     |> assign(:winner, nil)}
+    {:noreply, init_game(socket)}
   end
 
-  @impl true
-  def handle_params(params, _uri, socket) do
-    winning_value =
-      case Map.get(params, "winning_value") do
-        nil ->
-          21
-
-        value ->
-          case Integer.parse(value) do
-            {num, _} -> num
-            :error -> 21
-          end
-      end
-
-    {:noreply, assign(socket, :winning_value, winning_value)}
-  end
-
+  # =====================
   # PRIVATE
+  # =====================
 
-  defp init_deck(socket) do
-    assign(socket, cards: @cards, player: [], cpu: [], winner: nil)
-  end
-
-  defp first_deal(socket) do
-    [card1, card2, card3, card4] = Enum.take_random(@cards, 4)
+  defp init_game(socket) do
+    [c1, c2, c3, c4] = Enum.take_random(@cards, 4)
 
     assign(socket,
-      player: [card1, card2],
-      cpu: [card3, card4],
-      cards: @cards -- [card1, card2, card3, card4]
+      player: [c1, c2],
+      cpu: [c3, c4],
+      winner: nil
     )
   end
 
-  defp points(cards) do
-    Enum.reduce(cards, 0, fn card, acc -> acc + card end)
-  end
+  defp points(cards), do: Enum.sum(cards)
+
+  # -------- PLAYER --------
 
   defp draw_card(socket, count) do
-    if points(socket.assigns.player) < socket.assigns.winning_value do
-      case Enum.take_random(socket.assigns.cards, count) do
-        [card | _] ->
-          new_player_cards = [card | socket.assigns.player]
-          new_deck = socket.assigns.cards -- [card]
-          assign(socket, player: new_player_cards, cards: new_deck)
+    winning_value = socket.assigns.winning_value
 
-        [] ->
-          put_flash(socket, :error, "No more cards in the deck")
-      end
+    if points(socket.assigns.player) < winning_value do
+      [card | _] = Enum.take_random(@cards, count)
+      assign(socket, player: [card | socket.assigns.player])
     else
       put_flash(socket, :error, "Cannot take another card")
     end
   end
 
-  defp cpu_draw_card(socket, count) do
-    if points(socket.assigns.cpu) < 17 do
-      case Enum.take_random(socket.assigns.cards, count) do
-        [card | _] ->
-          new_cpu_cards = [card | socket.assigns.cpu]
-          new_deck = socket.assigns.cards -- [card]
-          assign(socket, cpu: new_cpu_cards, cards: new_deck)
+  # -------- CPU --------
 
-        [] ->
-          socket
-      end
+  defp cpu_draw_card(socket, count) do
+    winning_value = socket.assigns.winning_value
+
+    if points(socket.assigns.cpu) < winning_value do
+      [card | _] = Enum.take_random(@cards, count)
+      assign(socket, cpu: [card | socket.assigns.cpu])
     else
       socket
     end
   end
+
+  # -------- WINNER LOGIC --------
 
   defp handle_winner_on_draw(socket) do
     player_points = points(socket.assigns.player)
