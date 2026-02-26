@@ -11,15 +11,30 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Show do
 
   @impl true
   def handle_params(%{"id" => id}, _, socket) do
-    {:noreply,
-     socket
-     |> assign(:page_title, page_title(socket.assigns.live_action))
-     |> assign(:game, Catalog.get_game!(id))}
+    game = Catalog.get_game!(id)
+
+    # Increment views only when the user is viewing the game details
+    if socket.assigns.live_action == :show do
+      {:ok, updated_game} = Catalog.update_game(game, %{views: game.views + 1})
+
+      {:noreply,
+       socket
+       |> assign(:page_title, page_title(socket.assigns.live_action))
+       |> assign(:game, updated_game)}
+    else
+      {:noreply,
+       socket
+       |> assign(:page_title, page_title(socket.assigns.live_action))
+       |> assign(:game, game)}
+    end
   end
 
   @impl true
-  def handle_info({:flash, type, message}, socket) do
-    {:noreply, socket |> put_flash(type, message)}
+  def handle_info({PPhoenixLiveviewCourseWeb.GameLive.FormComponent, {:saved, game}}, socket) do
+    {:noreply,
+    socket
+    |> put_flash(:info, "Game updated successfully")
+    |> assign(:game, game)}
   end
 
   defp page_title(:show), do: "Show Game"
