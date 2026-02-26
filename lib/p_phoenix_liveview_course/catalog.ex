@@ -21,6 +21,19 @@ defmodule PPhoenixLiveviewCourse.Catalog do
     Repo.all(Game)
   end
 
+    @doc """
+  Searches games by name (case insensitive)
+  Returns all games if query is nil or empty
+  """
+  def search_games(query) when is_nil(query) or query == "", do: list_games()
+
+  def search_games(query) do
+    Repo.all(
+      from g in Game,
+      where: ilike(g.name, ^"%#{query}%")
+    )
+  end
+
   @doc """
   Gets a single game.
 
