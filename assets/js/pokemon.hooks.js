@@ -51,6 +51,9 @@ const PokemonBattle = {
   runBattle() {
     if (this.battleData.status == "draw") {
       this.el.classList.add("draw-animation");
+      setTimeout(() => {
+        this.pushEvent("battle_finished", {});
+      }, 1500);
     } else {
       this.applyBattleAnimation(this.battleData.loser, "loser-animation");
       setTimeout(() => {
@@ -59,9 +62,12 @@ const PokemonBattle = {
       }, 2000);
       setTimeout(() => {
         this.applyBattleAnimation(this.battleData.winner, "winner-animation");
-      }, 2500);
+        // 👉 aquí avisamos al servidor que ya terminó
+        this.pushEvent("battle_finished", {});
+      }, 3000);
     }
-  },
+  }
+  ,
 };
 
 export default PokemonBattle;

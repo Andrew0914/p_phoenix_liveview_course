@@ -3,7 +3,11 @@
 
   <h2>Choose your Pokemon</h2>
   <div class="pokemon-list">
-    <PokemonComponents.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
+    <PokemonComponents.pokemon_card
+      :for={pokemon <- @pokemons}
+      pokemon={pokemon}
+      id={"#{pokemon.id}-pokemon"}
+    />
   </div>
 
   <h2>Battle area</h2>
@@ -29,12 +33,22 @@
     />
   </div>
 
-  <button :if={@battle_result != nil} class="battle-button" id="battle-button">
+  <button :if={@p1 && @p2} class="battle-button" id="battle-button" phx-click="battle">
     Battle
   </button>
+
+  <h2 :if={@show_result}>
+    <%= case @battle_result.status do %>
+      <% :p1 -> %>
+        Player 1 wins 🏆!
+      <% :p2 -> %>
+        Player 2 wins 🏆!
+      <% :draw -> %>
+        It's a draw 🤷!
+    <% end %>
+  </h2>
 
   <button phx-click="reset_game" class="battle-button">
     Reset Game
   </button>
 </section>
-
