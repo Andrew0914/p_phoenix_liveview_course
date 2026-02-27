@@ -3,7 +3,11 @@
 
   <h2>Choose your Pokemon</h2>
   <div class="pokemon-list">
-    <PokemonComponents.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
+    <PokemonComponents.pokemon_card
+      :for={pokemon <- @pokemons}
+      pokemon={pokemon}
+      id={"pokemon-#{pokemon.id}"}
+    />
   </div>
 
   <h2>Battle area</h2>
