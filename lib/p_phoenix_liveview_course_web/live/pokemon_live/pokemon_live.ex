@@ -39,6 +39,12 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     {:noreply, socket}
   end
 
+
+  @impl true
+  def handle_event("reset_game", _params, socket) do
+    {:noreply, init_pokemons(socket)}
+  end
+
   @impl true
   def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
     socket = socket |> assign_player(sender_id, pokemon)
@@ -132,4 +138,5 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
         socket
     end
   end
+
 end

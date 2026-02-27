@@ -178,3 +178,11 @@
         transform: translateX(0);
     }
 }
+
+.countdown {
+  font-size: 48px;
+  font-weight: bold;
+  color: red;
+  text-align: center;
+  margin: 16px;
+}
