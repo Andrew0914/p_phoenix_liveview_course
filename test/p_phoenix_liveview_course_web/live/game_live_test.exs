@@ -1,3 +1,4 @@
+# Integration test LiveView (CRUD completo)
 defmodule PPhoenixLiveviewCourseWeb.GameLiveTest do
   use PPhoenixLiveviewCourseWeb.ConnCase
 
