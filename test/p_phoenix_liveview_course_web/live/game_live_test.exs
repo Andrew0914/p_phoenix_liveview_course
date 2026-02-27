@@ -3,9 +3,17 @@ defmodule PPhoenixLiveviewCourseWeb.GameLiveTest do
 
   import Phoenix.LiveViewTest
   import PPhoenixLiveviewCourse.CatalogFixtures
+  alias PPhoenixLiveviewCourse.Catalog
+  alias PPhoenixLiveviewCourse.Catalog.Game
+  alias PPhoenixLiveviewCourse.Repo
 
   @create_attrs %{name: "some name", description: "some description", unit_price: 120.5, sku: 42}
-  @update_attrs %{name: "some updated name", description: "some updated description", unit_price: 456.7, sku: 43}
+  @update_attrs %{
+    name: "some updated name",
+    description: "some updated description",
+    unit_price: 456.7,
+    sku: 43
+  }
   @invalid_attrs %{name: nil, description: nil, unit_price: nil, sku: nil}
 
   defp create_game(_) do
@@ -109,5 +117,16 @@ defmodule PPhoenixLiveviewCourseWeb.GameLiveTest do
       assert html =~ "Game updated successfully"
       assert html =~ "some updated name"
     end
+  end
+
+  test "views increment when visiting show page", %{conn: conn} do
+    game =
+      %Game{name: "Halo", description: "desc", unit_price: 10.0, sku: 1, views: 0}
+      |> Repo.insert!()
+
+    {:ok, _view, _html} = live(conn, ~p"/games/#{game.id}")
+
+    updated = Repo.get!(Game, game.id)
+    assert updated.views >= 1
   end
 end

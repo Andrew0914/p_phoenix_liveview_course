@@ -37,6 +37,14 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Show do
   end
 
   @impl true
+  def handle_info(
+        {PPhoenixLiveviewCourseWeb.GameLive.FormComponent, {:saved, game}},
+        socket
+      ) do
+    {:noreply, assign(socket, :game, game)}
+  end
+
+  @impl true
   def handle_info({:flash, type, message}, socket) do
     {:noreply, socket |> put_flash(type, message)}
   end
