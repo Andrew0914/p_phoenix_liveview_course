@@ -40,18 +40,79 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   end
 
   @impl true
+  def handle_event("initiate_battle", _params, socket) do
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      @battle_topic,
+      {:start_countdown}
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("reset_game", _params, socket) do
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      @battle_topic,
+      {:reset_game}
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
     socket = socket |> assign_player(sender_id, pokemon)
 
-    if socket.assigns.p1 && socket.assigns.p2 do
-      socket = socket |> battle()
-
-      {:noreply,
-       socket
-       |> push_event("battle:start", socket.assigns.battle_result)}
+    if socket.assigns.p1 && socket.assigns.p2 && is_nil(socket.assigns.battle_result) do
+      socket = battle(socket)
+      {:noreply, socket |> push_event("battle:start", socket.assigns.battle_result)}
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_info({:start_countdown}, socket) do
+    if socket.assigns.countdown == nil do
+      Process.send_after(self(), :tick, 1000)
+      {:noreply, assign(socket, countdown: 3)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(:tick, socket) do
+    countdown = socket.assigns.countdown
+
+    # Decrements timer or pushes the event to execute the visual battle
+    if countdown > 1 do
+      Process.send_after(self(), :tick, 1000)
+      {:noreply, assign(socket, countdown: countdown - 1)}
+    else
+      {:noreply,
+       socket
+       |> assign(countdown: nil, battle_executed: true)
+       |> push_event("battle:execute", %{})}
+    end
+  end
+
+  @impl true
+  def handle_info({:reset_game}, socket) do
+    # Clears server state and pushes event to clear JS animations
+    {:noreply,
+     socket
+     |> assign(
+       p1: nil,
+       p2: nil,
+       battle_result: nil,
+       role: nil,
+       countdown: nil,
+       battle_executed: nil
+     )
+     |> push_event("battle:reset", %{})}
   end
 
   #  PRIVATES
@@ -80,7 +141,15 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     available_pokemons = [charmander, squirtle, bulbasaur]
 
     socket
-    |> assign(pokemons: available_pokemons, p1: nil, p2: nil, battle_result: nil, role: nil)
+    |> assign(
+      pokemons: available_pokemons,
+      p1: nil,
+      p2: nil,
+      battle_result: nil,
+      role: nil,
+      countdown: nil,
+      battle_executed: nil
+    )
   end
 
   defp battle(socket) do

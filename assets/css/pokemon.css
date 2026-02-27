@@ -69,8 +69,8 @@
     align-items: center;
 }
 
-/* BATTLE BUTTON */
-.battle-button {
+/* POKEMON BUTTON */
+.pokemon-button {
     padding: 12px 24px;
     border: none;
     border-radius: 4px;
@@ -82,7 +82,7 @@
     transition: background-color 0.3s ease;
 }
 
-.battle-button:hover {
+.pokemon-button:hover {
     background-color: #0056b3;
 }
 

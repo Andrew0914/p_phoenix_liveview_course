@@ -8,15 +8,16 @@ const PokemonBattle = {
       this.battleData = payload;
       this.battleSound = this.playSound(BATTLE_SOUND, 5);
     });
-  },
-  updated() {
-    // client event
-    const battleButton = document.getElementById("battle-button");
-    battleButton?.removeEventListener("click", () => {
+    this.handleEvent("battle:execute", () => {
       this.battle();
     });
-    battleButton?.addEventListener("click", () => {
-      this.battle();
+    this.handleEvent("battle:reset", () => {
+      this.battleData = null;
+      if (this.battleSound) {
+        this.battleSound.pause();
+        this.battleSound.currentTime = 0;
+      }
+      this.el.classList.remove("draw-animation");
     });
   },
   playSound(src, duration) {

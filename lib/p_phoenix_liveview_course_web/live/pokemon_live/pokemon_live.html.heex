@@ -21,6 +21,10 @@
       id={"#{@p1.id}-pokemon"}
     />
 
+    <h1 :if={@countdown} class="countdown-text" style="font-size: 4rem; text-align: center;">
+      {@countdown}
+    </h1>
+
     <PokemonComponents.pokemon_card
       :if={@p2}
       pokemon={@p2.pokemon}
@@ -29,7 +33,21 @@
     />
   </div>
 
-  <button :if={@battle_result != nil} class="battle-button" id="battle-button">
+  <button
+    :if={@battle_result != nil and is_nil(@countdown) and @battle_executed == nil}
+    class="pokemon-button"
+    id="battle-button"
+    phx-click="initiate_battle"
+  >
     Battle
+  </button>
+
+  <button
+    :if={@battle_result != nil and is_nil(@countdown)}
+    phx-click="reset_game"
+    class="pokemon-button"
+    id="reset-button"
+  >
+    Reset Game
   </button>
 </section>
