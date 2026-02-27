@@ -4,7 +4,13 @@
   <div class="pokemon-list">
     <PokemonComponent.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
   </div>
-
+  
+<!-- COUNTDOWN -->
+  <div :if={@countdown && @countdown > 0} class="countdown text-2xl font-bold text-center mt-6">
+    ⚔️ Battle starts in {@countdown}...
+  </div>
+  
+<!-- BATTLE AREA -->
   <h2 :if={@p1_pokemon && @p2_pokemon}>Battle battling</h2>
   <div
     :if={@p1_pokemon && @p2_pokemon}
@@ -26,7 +32,12 @@
     />
   </div>
 
-  <button :if={@p1_pokemon && @p2_pokemon} id="battle-button" class="battle-button">
+  <button :if={@p1_pokemon && @p2_pokemon} phx-click="start_battle" class="battle-button">
     Battle
+  </button>
+  
+<!-- RESET -->
+  <button :if={@result} phx-click="reset_game" class="battle-button mt-4">
+    Reset Game
   </button>
 </section>

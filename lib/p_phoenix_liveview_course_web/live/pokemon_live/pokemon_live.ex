@@ -34,6 +34,38 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   end
 
   @impl true
+  def handle_event("reset_game", _params, socket) do
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      @battle_topic,
+      :reset_game
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_event("start_battle", _params, socket) do
+    if socket.assigns.p1_pokemon && socket.assigns.p2_pokemon do
+      # Process.send_after(self(), :countdown_tick, 1000)
+      Phoenix.PubSub.broadcast(
+        PPhoenixLiveviewCourse.PubSub,
+        @battle_topic,
+        :start_battle
+      )
+
+      {:noreply, socket}
+
+      {:noreply,
+       socket
+       |> assign(:countdown, 3)
+       |> assign(:result, nil)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  @impl true
   def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
     socket =
       cond do
@@ -52,16 +84,65 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
       end
 
     if socket.assigns.p1_pokemon && socket.assigns.p2_pokemon do
-      result = battle(socket.assigns.p1_pokemon, socket.assigns.p2_pokemon)
-      payload = build_battle_payload(socket.assigns.p1_pokemon, socket.assigns.p2_pokemon)
+      result =
+        battle(socket.assigns.p1_pokemon, socket.assigns.p2_pokemon)
 
       {:noreply,
        socket
-       |> assign(result: result)
-       |> push_event("battle:start", payload)}
+       |> assign(:pending_result, result)}
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_info(:reset_game, socket) do
+    {:noreply,
+     socket
+     |> assign(p1_pokemon: nil)
+     |> assign(p2_pokemon: nil)
+     |> assign(result: nil)
+     |> assign(:countdown, nil)}
+  end
+
+  @impl true
+  def handle_info(:countdown_tick, socket) do
+    cond do
+      socket.assigns.countdown > 1 ->
+        Process.send_after(self(), :countdown_tick, 1000)
+
+        {:noreply, assign(socket, :countdown, socket.assigns.countdown - 1)}
+
+      socket.assigns.countdown == 1 ->
+        result = socket.assigns.pending_result
+
+        payload =
+          build_battle_payload(
+            socket.assigns.p1_pokemon,
+            socket.assigns.p2_pokemon,
+            result
+          )
+
+        {:noreply,
+         socket
+         |> assign(:countdown, 0)
+         |> assign(:result, result)
+         |> assign(:pending_result, nil)
+         |> push_event("battle:start", payload)}
+
+      true ->
+        {:noreply, socket}
+    end
+  end
+
+  @impl true
+  def handle_info(:start_battle, socket) do
+    Process.send_after(self(), :countdown_tick, 1000)
+
+    {:noreply,
+     socket
+     |> assign(:countdown, 3)
+     |> assign(:result, nil)}
   end
 
   #  PRIVATES
@@ -88,7 +169,17 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     }
 
     available_pokemons = [charmander, squirtle, bulbasaur]
-    socket |> assign(pokemons: available_pokemons, p1_pokemon: nil, p2_pokemon: nil, result: nil)
+
+    socket
+    |> assign(
+      pokemons: available_pokemons,
+      p1_pokemon: nil,
+      p2_pokemon: nil,
+      result: nil,
+      countdown: nil,
+      player: nil,
+      pending_result: nil
+    )
   end
 
   defp random_pokemon(socket) do
@@ -113,8 +204,8 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     end
   end
 
-  defp build_battle_payload(p1_pokemon, p2_pokemon) do
-    case battle(p1_pokemon, p2_pokemon) do
+  defp build_battle_payload(p1_pokemon, p2_pokemon, result) do
+    case result do
       :draw ->
         %{status: :draw, winner: nil, loser: nil}
 
