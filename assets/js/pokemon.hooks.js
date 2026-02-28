@@ -1,21 +1,21 @@
 const BATTLE_SOUND = "/sounds/pokemon_battle.mp3";
+const DRAW_ANIMATION_DURATION = 1300; // Duration of shake animation (CSS)
+const LOSER_HIDE_DELAY = 2000;
+const WINNER_ANIMATION_START = 2500;
+
 const PokemonBattle = {
   battleData: null,
   battleSound: null,
   mounted() {
-    // server event
-    this.handleEvent("battle:start", (payload) => {
-      this.battleData = payload;
+    // Music starts when countdown begins
+    this.handleEvent("battle:countdown_start", (payload) => {
       this.battleSound = this.playSound(BATTLE_SOUND, 5);
     });
-  },
-  updated() {
-    // client event
-    const battleButton = document.getElementById("battle-button");
-    battleButton?.removeEventListener("click", () => {
-      this.battle();
-    });
-    battleButton?.addEventListener("click", () => {
+
+    // Animations when countdown finishes
+    this.handleEvent("battle:start", (payload) => {
+      this.battleData = payload;
+      // Start animations automatically
       this.battle();
     });
   },
@@ -43,11 +43,11 @@ const PokemonBattle = {
       setTimeout(() => {
         const loserId = this.battleData.loser.id + "-pokemon";
         this.el.querySelector(`#${loserId}`).style.display = "none";
-      }, 2000);
+      }, LOSER_HIDE_DELAY);
       // set animation for winner
       setTimeout(() => {
         this.applyBattleAnimation(this.battleData.winner, "winner-animation");
-      }, 2500);
+      }, WINNER_ANIMATION_START);
     }
   },
 };
