@@ -69,6 +69,60 @@
     align-items: center;
 }
 
+/* Countdown Styles */
+.countdown-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin: 20px 0;
+    animation: fadeIn 0.3s ease-in-out;
+}
+
+.countdown-label {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+}
+
+.countdown-display {
+    font-size: 28px;
+    font-weight: bold;
+    color: #ff6b6b;
+    min-width: 40px;
+    text-align: center;
+    animation: countdownPulse 1s infinite;
+    text-shadow: 0 0 10px rgba(255, 107, 107, 0.5);
+}
+
+@keyframes countdownPulse {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+    100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
 /* BATTLE BUTTON */
 .battle-button {
     padding: 12px 24px;
@@ -84,6 +138,17 @@
 
 .battle-button:hover {
     background-color: #0056b3;
+}
+
+/* RESTART BUTTON */
+.restart-button {
+    padding: 10px 20px;
+    background-color: #4caf50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
 }
 
 /*ANIMATIONS*/

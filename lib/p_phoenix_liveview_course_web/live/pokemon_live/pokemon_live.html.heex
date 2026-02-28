@@ -32,4 +32,8 @@
   <button :if={@battle_result != nil} class="battle-button" id="battle-button">
     Battle
   </button>
+
+  <button :if={@battle_result != nil} class="restart-button" id="restart-button" phx-click="restart-game">
+    Restart
+  </button>
 </section>

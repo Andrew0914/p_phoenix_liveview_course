@@ -40,6 +40,17 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   end
 
   @impl true
+  def handle_event("restart-game", _params, socket) do
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      @battle_topic,
+      {:game_restarted}
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
     socket = socket |> assign_player(sender_id, pokemon)
 
@@ -52,6 +63,13 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_info({:game_restarted}, socket) do
+    {:noreply,
+      socket
+      |> assign(p1: nil, p2: nil, battle_result: nil, role: nil )}
   end
 
   #  PRIVATES
