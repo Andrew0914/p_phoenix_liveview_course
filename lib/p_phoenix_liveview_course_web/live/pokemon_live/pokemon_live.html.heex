@@ -1,9 +1,15 @@
 <section class="gym">
   <h1>Pokemon battle!💥</h1>
 
-  <h2>Choose your Pokemon</h2>
-  <div class="pokemon-list">
-    <PokemonComponents.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
+  <div :if={!@p1 or !@p2} class="selection-zone">
+    <h2>Choose your Pokemon</h2>
+    <div class="pokemon-list">
+      <PokemonComponents.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
+    </div>
+  </div>
+
+  <div :if={@countdown && @countdown > 0} class="countdown">
+    <span class="text-4xl font-bold"><%= @countdown %></span>
   </div>
 
   <h2>Battle area</h2>
@@ -11,25 +17,41 @@
   <div
     class="pokemon-battle"
     id="battle-area"
-    name={if @battle_result, do: "#{@battle_result.status}-battle", else: "battle"}
+    name={if @show_results, do: "#{@battle_result.status}-battle", else: "battle"}
     phx-hook="PokemonBattle"
   >
-    <PokemonComponents.pokemon_card
-      :if={@p1}
-      pokemon={@p1.pokemon}
-      player={if @role == :p1, do: "You", else: @p1.name}
-      id={"#{@p1.id}-pokemon"}
-    />
+    <div :if={@p1} class="player-slot" id="p1-pokemon">
+      <p><%= if @role == :p1, do: "You", else: "Player 1" %></p>
+      <%= if @role == :p1 or @show_results do %>
+        <PokemonComponents.pokemon_card pokemon={@p1.pokemon} />
+      <% else %>
+        <div class="mystery-card">?</div>
+      <% end %>
+    </div>
 
-    <PokemonComponents.pokemon_card
-      :if={@p2}
-      pokemon={@p2.pokemon}
-      player={if @role == :p2, do: "You", else: @p2.name}
-      id={"#{@p2.id}-pokemon"}
-    />
+    <div class="vs">VS</div>
+
+    <div :if={@p2} class="player-slot" id="p2-pokemon">
+      <p><%= if @role == :p2, do: "You", else: "Player 2" %></p>
+      <%= if @role == :p2 or @show_results do %>
+        <PokemonComponents.pokemon_card pokemon={@p2.pokemon} />
+      <% else %>
+        <div class="mystery-card">?</div>
+      <% end %>
+    </div>
   </div>
 
-  <button :if={@battle_result != nil} class="battle-button" id="battle-button">
-    Battle
-  </button>
+  <div :if={@show_results} class="result-area">
+    <h3 class="winner-text">
+      <%= case @battle_result.status do %>
+        <% :draw -> %> Es un empate! 🤝
+        <% :p1 -> %> Ganó <%= if @role == :p1, do: "Tú", else: "Jugador 1" %>! 🏆
+        <% :p2 -> %> Ganó <%= if @role == :p2, do: "Tú", else: "Jugador 2" %>! 🏆
+      <% end %>
+    </h3>
+    
+    <button phx-click="reset_game" class="battle-button">
+      Play Again 🔄
+    </button>
+  </div>
 </section>

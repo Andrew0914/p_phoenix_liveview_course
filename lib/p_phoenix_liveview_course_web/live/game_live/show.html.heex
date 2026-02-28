@@ -1,6 +1,12 @@
 <.header>
   Game {@game.id}
-  <:subtitle>This is a game record from your database.</:subtitle>
+  <:subtitle>
+    <%!--  view count display --%>
+    <div class="flex items-center gap-2 mt-2 text-sm text-zinc-600 font-medium">
+      <.icon name="hero-eye" class="w-4 h-4 text-zinc-400" />
+      <span>{@game.views} visualizaciones</span>
+    </div>
+  </:subtitle>
   <:actions>
     <.link patch={~p"/games/#{@game}/show/edit"} phx-click={JS.push_focus()}>
       <.button>Edit game</.button>
