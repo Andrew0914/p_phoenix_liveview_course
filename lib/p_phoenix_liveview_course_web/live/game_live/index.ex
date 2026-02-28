@@ -11,6 +11,22 @@ defmodule PPhoenixLiveviewCourseWeb.GameLive.Index do
   end
 
   @impl true
+  def handle_event("search", %{"query" => query}, socket) do
+    if String.length(query) >= 3 do
+
+      filtered_games =
+        Catalog.list_games()
+        |> Enum.filter(fn g ->
+          String.contains?(String.downcase(g.name), String.downcase(query))
+        end)
+
+      {:noreply, stream(socket, :games, filtered_games, reset: true)}
+    else
+
+      {:noreply, stream(socket, :games, Catalog.list_games(), reset: true)}
+    end
+  end
+  @impl true
   def handle_params(params, _url, socket) do
     {:noreply, apply_action(socket, socket.assigns.live_action, params)}
   end

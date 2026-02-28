@@ -7,6 +7,17 @@
   </:actions>
 </.header>
 
+<div class="my-5">
+  <.simple_form for={%{}} phx-change="search">
+    <.input 
+      name="query" 
+      value="" 
+      placeholder="Search games" 
+      phx-debounce="300" 
+    />
+  </.simple_form>
+</div>
+
 <.table
   id="games"
   rows={@streams.games}
@@ -14,6 +25,14 @@
 >
   <:col :let={{_id, game}} label="Name">{game.name}</:col>
   <:col :let={{_id, game}} label="Description">{game.description}</:col>
+  
+  <%!-- view count column --%>
+  <:col :let={{_id, game}} label="Views">
+    <div class="flex items-center gap-1">
+      <.icon name="hero-eye" class="w-3 h-3 text-zinc-400" />
+      {game.views}
+    </div>
+  </:col>
 
   <:col :let={{_id, game}} label="Tomatometer">
     <.live_component module={Tomatometer} id={"tomatometer-#{game.id}"} game={game} />
