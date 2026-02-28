@@ -15,6 +15,7 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   alias PPhoenixLiveviewCourseWeb.PokemonLive.PokemonComponents
 
   @battle_topic "pokemon_battle"
+  @countdown_seconds 5
 
   @impl true
   def mount(_params, _session, socket) do
@@ -40,18 +41,58 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
   end
 
   @impl true
+  def handle_event("reset_battle", _params, socket) do
+    # Synchronized reset for all players
+    Phoenix.PubSub.broadcast(
+      PPhoenixLiveviewCourse.PubSub,
+      @battle_topic,
+      {:battle_reset}
+    )
+
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_info({:pokemon_chosen, sender_id, pokemon}, socket) do
     socket = socket |> assign_player(sender_id, pokemon)
 
     if socket.assigns.p1 && socket.assigns.p2 do
-      socket = socket |> battle()
+      # Auto-start: begin 5-second countdown
+      socket = socket |> assign(countdown: @countdown_seconds, battle_phase: :countdown)
+      Process.send_after(self(), :countdown_tick, 1000)
 
-      {:noreply,
-       socket
-       |> push_event("battle:start", socket.assigns.battle_result)}
+      # Trigger event to start music during countdown
+      {:noreply, socket |> push_event("battle:countdown_start", %{seconds: @countdown_seconds})}
     else
       {:noreply, socket}
     end
+  end
+
+  @impl true
+  def handle_info(:countdown_tick, socket) do
+    # Guard: only process if countdown is active
+    case socket.assigns.countdown do
+      nil ->
+        {:noreply, socket}
+
+      count when count > 1 ->
+        Process.send_after(self(), :countdown_tick, 1000)
+        {:noreply, assign(socket, countdown: count - 1)}
+
+      _ ->
+        # Countdown finished: calculate battle and auto-start animations
+        socket =
+          socket
+          |> assign(countdown: nil, battle_phase: nil)
+          |> battle()
+
+        {:noreply, socket |> push_event("battle:start", socket.assigns.battle_result)}
+    end
+  end
+
+  @impl true
+  def handle_info({:battle_reset}, socket) do
+    {:noreply, socket |> init_pokemons()}
   end
 
   #  PRIVATES
@@ -80,7 +121,15 @@ defmodule PPhoenixLiveviewCourseWeb.PokemonLive do
     available_pokemons = [charmander, squirtle, bulbasaur]
 
     socket
-    |> assign(pokemons: available_pokemons, p1: nil, p2: nil, battle_result: nil, role: nil)
+    |> assign(
+      pokemons: available_pokemons,
+      p1: nil,
+      p2: nil,
+      battle_result: nil,
+      role: nil,
+      countdown: nil,
+      battle_phase: nil
+    )
   end
 
   defp battle(socket) do

@@ -19,6 +19,15 @@
   <:item title="Tomatoes Rating">
     <.live_component module={Tomatometer} id={"tomatometer-#{@game.id}"} game={@game} />
   </:item>
+  <:item title="Views">
+    <div class="views-counter">
+      <.icon name="hero-eye" class="views-counter-icon" />
+      <div class="flex flex-col items-center">
+        <span class="views-counter-number">{@game.views_count}</span>
+        <span class="views-counter-label">Views</span>
+      </div>
+    </div>
+  </:item>
 </.list>
 
 <.back navigate={~p"/games"}>Back to games</.back>
