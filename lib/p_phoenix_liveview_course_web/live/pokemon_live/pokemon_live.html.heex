@@ -3,7 +3,11 @@
 
   <h2>Choose your Pokemon</h2>
   <div class="pokemon-list">
-    <PokemonComponents.pokemon_card :for={pokemon <- @pokemons} pokemon={pokemon} />
+    <PokemonComponents.pokemon_card
+      :for={pokemon <- @pokemons}
+      pokemon={pokemon}
+      id={"pokemon-select-#{pokemon.id}"}
+    />
   </div>
 
   <h2>Battle area</h2>
@@ -14,6 +18,11 @@
     name={if @battle_result, do: "#{@battle_result.status}-battle", else: "battle"}
     phx-hook="PokemonBattle"
   >
+    <!-- Countdown overlay (5 seconds) -->
+    <div :if={@battle_phase == :countdown} class="countdown-overlay">
+      <div class="countdown-number"><%= @countdown %></div>
+    </div>
+
     <PokemonComponents.pokemon_card
       :if={@p1}
       pokemon={@p1.pokemon}
@@ -29,7 +38,8 @@
     />
   </div>
 
-  <button :if={@battle_result != nil} class="battle-button" id="battle-button">
-    Battle
+  <!-- Reset button (synchronized, visible after battle) -->
+  <button :if={@battle_result != nil} class="reset-button" phx-click="reset_battle">
+    Play Again
   </button>
 </section>
